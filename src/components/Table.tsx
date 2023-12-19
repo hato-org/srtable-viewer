@@ -1,13 +1,52 @@
+"use client";
 import { Suspense } from "react";
+import useSWR from "swr";
+import { getCookie } from "cookies-next";
+import dynamic from "next/dynamic";
+import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { ScienceRoom } from "@/types/hato";
 import { css } from "@shadow-panda/styled-system/css";
 import { flex, center, vstack, hstack, grid } from "@shadow-panda/styled-system/patterns";
 import { Clock } from "./Clock";
+import { fetchScienceroomTable } from "@/services/scienceroom";
 
 const tableColors = ["#dc2626", "#2563eb", "#7c3aed", "#0284c7", "#ea580c", "#FFF100", "#16a34a"];
 
-export default function Table({ table }: { table?: ScienceRoom }) {
-  return table?.roomTable.length ? (
+export default function Table({ date, table }: { date: Date; table?: ScienceRoom }) {
+  const LucideLoader2 = dynamic(dynamicIconImports["loader-2"]);
+  const LucideAlertCircle = dynamic(dynamicIconImports["alert-circle"]);
+
+  const key = getCookie("hatoapi-key");
+  const { data, isLoading, error } = useSWR<ScienceRoom, Error>(
+    key ? `srtable-${date.toISOString()}` : null,
+    () => fetchScienceroomTable({ date, key }),
+    {
+      fallbackData: table,
+      refreshInterval: 1000 * 60, // Refresh every minite
+    }
+  );
+
+  if (!table && isLoading)
+    return (
+      <div className={center({ w: "full", h: "full" })}>
+        <LucideLoader2 className={css({ w: 10, h: 10, animation: "spin" })} />
+        <span>loadingggggg......</span>
+      </div>
+    );
+
+  if (error)
+    return (
+      <div
+        className={vstack({ w: "full", h: "full", justifyContent: "center", alignItems: "center" })}
+      >
+        <LucideAlertCircle className={css({ w: 24, h: 24, color: "red.500" })} />
+        <span className={css({ fontSize: "2xl", fontWeight: "bold" })}>エラーが発生しました</span>
+        <code className={css({ fontFamily: "monospace", whiteSpace: "pre" })}>{error.message}</code>
+        <pre className={css({ fontFamily: "monospace", whiteSpace: "pre" })}>{error.stack}</pre>
+      </div>
+    );
+
+  return data?.roomTable.length ? (
     <div
       className={vstack({
         w: "full",
@@ -40,7 +79,7 @@ export default function Table({ table }: { table?: ScienceRoom }) {
           )
         )}
       </div>
-      {table?.roomTable.map(({ name, table }, rowIndex) => (
+      {data?.roomTable.map(({ name, table }, rowIndex) => (
         <div
           key={name}
           className={grid({
@@ -91,12 +130,12 @@ export default function Table({ table }: { table?: ScienceRoom }) {
         </div>
       ))}
       <div className={hstack({ w: "full", alignItems: "flex-end" })}>
-        {table.updatedAt && (
+        {data?.updatedAt && (
           <span className={css({ fontSize: "sm", color: "neutral.500" })}>
             最終更新:{" "}
-            {new Date(table.updatedAt).toLocaleString("ja-JP", {
+            {new Date(data?.updatedAt).toLocaleString("ja-JP", {
               timeZone: "JST",
-              dateStyle: 'medium',
+              dateStyle: "medium",
               timeStyle: "short",
             })}
           </span>

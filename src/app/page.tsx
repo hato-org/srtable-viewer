@@ -11,25 +11,13 @@ export default async function Home({
 }) {
   const key = cookies().get("hatoapi-key")?.value;
   const { y, m, d } = searchParams;
+  const date = y && m && d ? new Date(Number(y), Number(m) - 1, Number(d)) : new Date();
   const table = key
     ? await fetchScienceroomTable({
-        date: y && m && d ? new Date(Number(y), Number(m) - 1, Number(d)) : new Date(),
+        date,
         key,
       })
     : undefined;
-  // const searchParams = useSearchParams();
-
-  /*
-  useEffect(() => {
-    const year = searchParams.get("y");
-    const month = searchParams.get("m");
-    const dayOfMonth = searchParams.get("d");
-
-    if (year && month && dayOfMonth)
-      setDate(new Date(Number(year), Number(month) - 1, Number(dayOfMonth)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  */
 
   return (
     <main
@@ -45,7 +33,7 @@ export default async function Home({
       <div
         className={flex({ w: "full", maxW: "breakpoint-xl", h: "full", p: 2, overflow: "auto" })}
       >
-        <Table table={table} />
+        <Table date={date} table={table} />
       </div>
     </main>
   );
