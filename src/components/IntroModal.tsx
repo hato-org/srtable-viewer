@@ -1,6 +1,5 @@
 "use client";
-import { useState } from "react";
-import { useLocalStorage } from "usehooks-ts";
+import { useState, useEffect } from "react";
 import { css } from "@shadow-panda/styled-system/css";
 import { vstack, hstack } from "@shadow-panda/styled-system/patterns";
 import {
@@ -16,14 +15,19 @@ import { Button } from "./ui/button";
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
+import { hasCookie, setCookie } from "cookies-next";
 
 export default function IntroModal() {
   const LucideExternalLink = dynamic(dynamicIconImports["external-link"]);
-  const [apiKey, setApiKey] = useLocalStorage<string>("hatoapi-apikey", "");
   const [inputVal, setInputVal] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (!hasCookie("hatoapi-key")) setIsOpen(true);
+  }, []);
 
   return (
-    <Dialog open={!apiKey}>
+    <Dialog open={isOpen}>
       <DialogContent gap={8}>
         <DialogHeader>
           <DialogTitle>屋代高校 理科室割</DialogTitle>
@@ -34,14 +38,14 @@ export default function IntroModal() {
           <span className={css({ color: "neutral.500", fontSize: "sm" })}>
             Hatoにログイン後、「設定」→「アカウント」から、APIキーをコピーしてください。
           </span>
-          <Link className={css({ w: "full" })} href="https://hato.cf" target="_blank">
-            <Button w="full" variant="ghost">
+          <Button asChild w="full" variant="ghost">
+            <Link className={css({ w: "full" })} href="https://hato.cf" target="_blank">
               <div className={hstack()}>
                 <span>Hatoに移動</span>
                 <LucideExternalLink className={css({ w: 4, h: 4 })} />
               </div>
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         </div>
         <div className={vstack()}>
           <Input
@@ -52,7 +56,14 @@ export default function IntroModal() {
           />
         </div>
         <DialogFooter>
-          <Button w="full" disabled={!inputVal} onClick={() => setApiKey(inputVal)}>
+          <Button
+            w="full"
+            disabled={!inputVal}
+            onClick={() => {
+              setCookie("hatoapi-key", inputVal);
+              window.location.reload();
+            }}
+          >
             利用を開始
           </Button>
         </DialogFooter>

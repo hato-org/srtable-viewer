@@ -1,17 +1,25 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import IntroModal from "@/components/IntroModal";
 import Table from "@/components/Table";
-import { css } from "@shadow-panda/styled-system/css";
 import { flex } from "@shadow-panda/styled-system/patterns";
-import { useSearchParams } from "next/navigation";
-import Sidebar from "@/components/Sidebar";
+import { cookies } from "next/headers";
+import { fetchScienceroomTable } from "@/services/scienceroom";
 
-export default function Home() {
-  const [date, setDate] = useState(new Date());
-  const searchParams = useSearchParams();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined };
+}) {
+  const key = cookies().get("hatoapi-key")?.value;
+  const { y, m, d } = searchParams;
+  const table = key
+    ? await fetchScienceroomTable({
+        date: y && m && d ? new Date(Number(y), Number(m) - 1, Number(d)) : new Date(),
+        key,
+      })
+    : undefined;
+  // const searchParams = useSearchParams();
 
+  /*
   useEffect(() => {
     const year = searchParams.get("y");
     const month = searchParams.get("m");
@@ -21,6 +29,7 @@ export default function Home() {
       setDate(new Date(Number(year), Number(month) - 1, Number(dayOfMonth)));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  */
 
   return (
     <main
@@ -33,9 +42,10 @@ export default function Home() {
       })}
     >
       <IntroModal />
-      <Sidebar />
-      <div className={css({ w: "full", maxW: "breakpoint-xl", h: "full", p: 2, overflow: "auto" })}>
-        <Table date={date} />
+      <div
+        className={flex({ w: "full", maxW: "breakpoint-xl", h: "full", p: 2, overflow: "auto" })}
+      >
+        <Table table={table} />
       </div>
     </main>
   );

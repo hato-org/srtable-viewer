@@ -1,7 +1,8 @@
+"use client";
+import { useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import dynamicIconImports from "lucide-react/dynamicIconImports";
-import { useBoolean } from "usehooks-ts";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { css } from "@shadow-panda/styled-system/css";
 import { flex, vstack } from "@shadow-panda/styled-system/patterns";
@@ -11,11 +12,11 @@ import Hero from "@/../public/hero.png";
 export default function Sidebar() {
   const LucideChevronUp = dynamic(dynamicIconImports["chevron-up"]);
   const LucideChevronDown = dynamic(dynamicIconImports["chevron-down"]);
-  const { value, setTrue, setFalse } = useBoolean();
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Collapsible open={value}>
-      <CollapsibleTrigger onClick={setTrue}>
+    <Collapsible open={isOpen}>
+      <CollapsibleTrigger onClick={() => setIsOpen(true)}>
         <div
           className={flex({
             pos: "fixed",
@@ -59,7 +60,7 @@ export default function Sidebar() {
               h: 6,
               cursor: "pointer",
             })}
-            onClick={setFalse}
+            onClick={() => setIsOpen(false)}
           >
             <LucideChevronDown />
           </button>

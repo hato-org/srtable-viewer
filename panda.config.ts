@@ -18,7 +18,11 @@ export default defineConfig({
 
 	// Useful for theme customization
 	theme: {
-		extend: {},
+		extend: {
+			breakpoints: {
+				xs: '500px'
+			}
+		},
 	},
 
 	// Emit artifacts to `node_modules` as a package.
