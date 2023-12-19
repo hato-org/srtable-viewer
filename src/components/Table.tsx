@@ -93,7 +93,12 @@ export default function Table({ table }: { table?: ScienceRoom }) {
       <div className={hstack({ w: "full", alignItems: "flex-end" })}>
         {table.updatedAt && (
           <span className={css({ fontSize: "sm", color: "neutral.500" })}>
-            最終更新: {new Date(table.updatedAt).toLocaleString()}
+            最終更新:{" "}
+            {new Date(table.updatedAt).toLocaleString("ja-JP", {
+              timeZone: "JST",
+              dateStyle: 'medium',
+              timeStyle: "short",
+            })}
           </span>
         )}
       </div>
