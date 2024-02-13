@@ -1,4 +1,4 @@
-import Image from "next/image";
+// import Image from "next/image";
 import { ImageResponse } from "next/og";
 
 export const runtime = "edge";
@@ -8,10 +8,11 @@ export const size = {
   width: 1280,
   height: 600,
 };
+export const contentType = "image/png";
 
-export default async function OgImage() {
+export default async function Image() {
   const zenMaruMedium = fetch(
-    "https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500&display=swap"
+    "https://cdn.jsdelivr.net/fontsource/fonts/zen-maru-gothic@latest/japanese-500-normal.woff2"
   ).then((res) => res.arrayBuffer());
 
   return new ImageResponse(
@@ -29,7 +30,7 @@ export default async function OgImage() {
           fontWeight: 600,
         }}
       >
-        <Image
+        <img
           alt="Science table"
           src="/cover.png"
           style={{
@@ -38,7 +39,7 @@ export default async function OgImage() {
             filter: "blur(8px)",
           }}
         />
-        <Image
+        <img
           alt="Hero"
           src="/hero-alpha.png"
           style={{
@@ -56,6 +57,7 @@ export default async function OgImage() {
       </div>
     ),
     {
+      ...size,
       fonts: [
         {
           name: "Zen Maru",
