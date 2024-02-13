@@ -6,7 +6,9 @@ const inter = Inter({ subsets: ["latin"] });
 const zenKaku = Zen_Kaku_Gothic_New({ weight: "500", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.SITE_URL ?? process.env.VERCEL_URL ?? "http://localhost:3000"),
+  metadataBase: new URL(
+    process.env.SITE_URL ?? `https://${process.env.VERCEL_URL}` ?? "http://localhost:3000"
+  ),
   title: "屋代高校 理科室割",
   description: "屋代高校の理科室割が閲覧できます",
   openGraph: {
