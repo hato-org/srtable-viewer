@@ -1,25 +1,27 @@
 "use client";
 import { Suspense } from "react";
 import useSWR from "swr";
-import { getCookie } from "cookies-next";
-import dynamic from "next/dynamic";
-import dynamicIconImports from "lucide-react/dynamicIconImports";
 import { ScienceRoom } from "@/types/hato";
 import { css } from "@shadow-panda/styled-system/css";
 import { flex, center, vstack, hstack, grid } from "@shadow-panda/styled-system/patterns";
 import { Clock } from "./Clock";
-import { fetchScienceroomTable } from "@/services/scienceroom";
+import { AlertCircle, Loader2 } from "lucide-react";
 
 const tableColors = ["#dc2626", "#2563eb", "#7c3aed", "#0284c7", "#ea580c", "#FFF100", "#16a34a"];
 
 export default function Table({ date, table }: { date: Date; table?: ScienceRoom }) {
-  const LucideLoader2 = dynamic(dynamicIconImports["loader-2"]);
-  const LucideAlertCircle = dynamic(dynamicIconImports["alert-circle"]);
 
-  const key = getCookie("hatoapi-key");
   const { data, isLoading, error } = useSWR<ScienceRoom, Error>(
-    key ? `srtable-${date.toISOString()}` : null,
-    () => fetchScienceroomTable({ date, key }),
+    `srtable-${date.toISOString()}`,
+    table ? async () => (
+      await fetch(
+        `/api/scienceroom?${new URLSearchParams({
+          y: date.getFullYear().toString(),
+          m: (date.getMonth() + 1).toString(),
+          d: date.getDate().toString(),
+        }).toString()}`
+      )
+    ).json() : null,
     {
       fallbackData: table,
       refreshInterval: 1000 * 60, // Refresh every minite
@@ -28,9 +30,17 @@ export default function Table({ date, table }: { date: Date; table?: ScienceRoom
 
   if (!table && isLoading)
     return (
-      <div className={center({ w: "full", h: "full" })}>
-        <LucideLoader2 className={css({ w: 10, h: 10, animation: "spin" })} />
-        <span>loadingggggg......</span>
+      <div
+        className={vstack({
+          w: "full",
+          h: "full",
+          justifyContent: "center",
+          alignItems: "center",
+          gap: 4,
+        })}
+      >
+        <Loader2 className={css({ w: 10, h: 10, animation: "spin" })} />
+        <span>読み込み中</span>
       </div>
     );
 
@@ -39,7 +49,7 @@ export default function Table({ date, table }: { date: Date; table?: ScienceRoom
       <div
         className={vstack({ w: "full", h: "full", justifyContent: "center", alignItems: "center" })}
       >
-        <LucideAlertCircle className={css({ w: 24, h: 24, color: "red.500" })} />
+        <AlertCircle className={css({ w: 24, h: 24, color: "red.500" })} />
         <span className={css({ fontSize: "2xl", fontWeight: "bold" })}>エラーが発生しました</span>
         <code className={css({ fontFamily: "monospace", whiteSpace: "pre" })}>{error.message}</code>
         <pre className={css({ fontFamily: "monospace", whiteSpace: "pre" })}>{error.stack}</pre>
@@ -152,7 +162,7 @@ export default function Table({ date, table }: { date: Date; table?: ScienceRoom
         color: "neutral.600",
       })}
     >
-      今日の理科室割情報はありません
+      {date.toLocaleDateString('ja-JP', { dateStyle: 'short' })}の理科室割情報はありません
     </div>
   );
 }

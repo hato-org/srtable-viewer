@@ -3,6 +3,7 @@ import Table from "@/components/Table";
 import { flex } from "@shadow-panda/styled-system/patterns";
 import { cookies } from "next/headers";
 import { fetchScienceroomTable } from "@/services/scienceroom";
+import { startOfDay } from "@/utils/date";
 
 export default async function Home({
   searchParams,
@@ -11,12 +12,16 @@ export default async function Home({
 }) {
   const key = cookies().get("hatoapi-key")?.value;
   const { y, m, d } = searchParams;
-  const date = y && m && d ? new Date(Number(y), Number(m) - 1, Number(d)) : new Date();
+  const date = y && m && d ? new Date(Number(y), Number(m) - 1, Number(d)) : startOfDay(new Date());
   const table = key
-    ? await fetchScienceroomTable({
-        date,
-        key,
-      })
+    ? await (
+        await fetchScienceroomTable({
+          y: date.getFullYear().toString(),
+          m: (date.getMonth() + 1).toString(),
+          d: date.getDate().toString(),
+          key,
+        })
+      ).json()
     : undefined;
 
   return (
@@ -29,7 +34,7 @@ export default async function Home({
         alignItems: "center",
       })}
     >
-      <IntroModal />
+      <IntroModal isOpen={!key} />
       <div
         className={flex({ w: "full", maxW: "breakpoint-xl", h: "full", p: 2, overflow: "auto" })}
       >

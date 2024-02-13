@@ -20,10 +20,10 @@ const Content = React.forwardRef<React.ElementRef<typeof DialogPrimitive.Content
 			<DialogOverlay />
 			<DialogPrimitive.Content ref={ref} {...props}>
 				{children}
-				<DialogClose>
+				{/* <DialogClose>
 					<X className={icon()} />
 					<span className={css({ srOnly: true })}>Close</span>
-				</DialogClose>
+				</DialogClose> */}
 			</DialogPrimitive.Content>
 		</DialogPortal>
 	)

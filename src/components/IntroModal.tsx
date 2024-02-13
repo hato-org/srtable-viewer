@@ -1,30 +1,36 @@
 "use client";
-import { useState, useEffect } from "react";
 import { css } from "@shadow-panda/styled-system/css";
 import { vstack, hstack } from "@shadow-panda/styled-system/patterns";
 import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import dynamicIconImports from "lucide-react/dynamicIconImports";
-import { hasCookie, setCookie } from "cookies-next";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form";
+import { useForm } from "react-hook-form";
+import useSWRMutation from "swr/mutation";
+import { ExternalLink, Loader2 } from "lucide-react";
 
-export default function IntroModal() {
-  const LucideExternalLink = dynamic(dynamicIconImports["external-link"]);
-  const [inputVal, setInputVal] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
+export default function IntroModal({ isOpen }: { isOpen: boolean }) {
+  const form = useForm({
+    defaultValues: {
+      apiKey: "",
+    },
+  });
 
-  useEffect(() => {
-    if (!hasCookie("hatoapi-key")) setIsOpen(true);
-  }, []);
+  const { trigger, isMutating } = useSWRMutation(
+    "/api/register",
+    async (path, { arg }: { arg: { apiKey: string } }) =>
+      await fetch(path, { method: "POST", body: JSON.stringify(arg) }),
+    {
+      onSuccess: () => window.location.reload(),
+    }
+  );
 
   return (
     <Dialog open={isOpen}>
@@ -39,34 +45,45 @@ export default function IntroModal() {
             Hatoにログイン後、「設定」→「アカウント」から、APIキーをコピーしてください。
           </span>
           <Button asChild w="full" variant="ghost">
-            <Link className={css({ w: "full" })} href="https://hato.cf" target="_blank">
+            <Link className={css({ w: "full" })} href="https://hato.pages.dev" target="_blank">
               <div className={hstack()}>
                 <span>Hatoに移動</span>
-                <LucideExternalLink className={css({ w: 4, h: 4 })} />
+                <ExternalLink className={css({ w: 4, h: 4 })} />
               </div>
             </Link>
           </Button>
         </div>
-        <div className={vstack()}>
-          <Input
-            type="text"
-            placeholder="APIキーを入力"
-            value={inputVal}
-            onChange={(e) => setInputVal(e.target.value)}
-          />
-        </div>
-        <DialogFooter>
-          <Button
-            w="full"
-            disabled={!inputVal}
-            onClick={() => {
-              setCookie("hatoapi-key", inputVal);
-              window.location.reload();
-            }}
-          >
-            利用を開始
-          </Button>
-        </DialogFooter>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit((data) => trigger(data))}>
+            <div className={vstack({ gap: 4 })}>
+              <FormField
+                rules={{
+                  required: {
+                    value: true,
+                    message: "APIキーを入力してください",
+                  },
+                }}
+                control={form.control}
+                name="apiKey"
+                render={({ field }) => (
+                  <FormItem w="full">
+                    <FormLabel>APIキー</FormLabel>
+                    <FormControl>
+                      <Input placeholder="APIキーを入力" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" w="full" disabled={isMutating}>
+                {isMutating ? <Loader2 className={css({ animation: "spin" })} /> : "利用を開始"}
+              </Button>
+            </div>
+          </form>
+        </Form>
+        {/* <DialogFooter>
+            
+            </DialogFooter> */}
       </DialogContent>
     </Dialog>
   );
