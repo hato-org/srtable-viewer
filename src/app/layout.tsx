@@ -1,6 +1,16 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import { Inter, M_PLUS_1, Zen_Kaku_Gothic_New } from "next/font/google";
+import dayjs from "dayjs";
+import utc from 'dayjs/plugin/utc'
+import timezone from "dayjs/plugin/timezone";
+import arraySupport from 'dayjs/plugin/arraySupport'
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(arraySupport)
+
+dayjs.tz.setDefault('Asia/Tokyo');
 
 const inter = Inter({ subsets: ["latin"] });
 const zenKaku = Zen_Kaku_Gothic_New({ weight: "500", subsets: ["latin"] });

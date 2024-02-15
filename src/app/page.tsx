@@ -3,7 +3,7 @@ import Table from "@/components/Table";
 import { flex } from "@shadow-panda/styled-system/patterns";
 import { cookies } from "next/headers";
 import { fetchScienceroomTable } from "@/services/scienceroom";
-import { startOfDay } from "@/utils/date";
+import dayjs from "dayjs";
 
 export default async function Home({
   searchParams,
@@ -12,13 +12,15 @@ export default async function Home({
 }) {
   const key = cookies().get("hatoapi-key")?.value;
   const { y, m, d } = searchParams;
-  const date = y && m && d ? new Date(Number(y), Number(m) - 1, Number(d)) : startOfDay(new Date());
+  const date = dayjs(y && m && d ? [Number(y), Number(m) - 1, Number(d)] : new Date())
+    .tz("Asia/Tokyo")
+    .startOf("day")
   const table = key
     ? await (
         await fetchScienceroomTable({
-          y: date.getFullYear().toString(),
-          m: (date.getMonth() + 1).toString(),
-          d: date.getDate().toString(),
+          y: date.year().toString(),
+          m: (date.month() + 1).toString(),
+          d: date.daysInMonth().toString(),
           key,
         })
       ).json()
@@ -38,7 +40,7 @@ export default async function Home({
       <div
         className={flex({ w: "full", maxW: "breakpoint-xl", h: "full", p: 2, overflow: "auto" })}
       >
-        <Table date={date} table={table} />
+        <Table date={date.toDate()} table={table} />
       </div>
     </main>
   );

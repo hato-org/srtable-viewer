@@ -10,18 +10,20 @@ import { AlertCircle, Loader2 } from "lucide-react";
 const tableColors = ["#dc2626", "#2563eb", "#7c3aed", "#0284c7", "#ea580c", "#FFF100", "#16a34a"];
 
 export default function Table({ date, table }: { date: Date; table?: ScienceRoom }) {
-
   const { data, isLoading, error } = useSWR<ScienceRoom, Error>(
     `srtable-${date.toISOString()}`,
-    table ? async () => (
-      await fetch(
-        `/api/scienceroom?${new URLSearchParams({
-          y: date.getFullYear().toString(),
-          m: (date.getMonth() + 1).toString(),
-          d: date.getDate().toString(),
-        }).toString()}`
-      )
-    ).json() : null,
+    table
+      ? async () =>
+          (
+            await fetch(
+              `/api/scienceroom?${new URLSearchParams({
+                y: date.getFullYear().toString(),
+                m: (date.getMonth() + 1).toString(),
+                d: date.getDate().toString(),
+              }).toString()}`
+            )
+          ).json()
+      : null,
     {
       fallbackData: table,
       refreshInterval: 1000 * 60, // Refresh every minite
@@ -162,7 +164,7 @@ export default function Table({ date, table }: { date: Date; table?: ScienceRoom
         color: "neutral.600",
       })}
     >
-      {date.toLocaleDateString('ja-JP', { dateStyle: 'short' })}の理科室割情報はありません
+      {date.toLocaleDateString("ja-JP", { dateStyle: "short" })}の理科室割情報はありません
     </div>
   );
 }
