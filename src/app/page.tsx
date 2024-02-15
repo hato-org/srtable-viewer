@@ -12,15 +12,15 @@ export default async function Home({
 }) {
   const key = cookies().get("hatoapi-key")?.value;
   const { y, m, d } = searchParams;
-  const date = dayjs(y && m && d ? [Number(y), Number(m) - 1, Number(d)] : new Date())
-    .tz("Asia/Tokyo")
-    .startOf("day")
+  const date = dayjs(y && m && d ? [Number(y), Number(m) - 1, Number(d)] : new Date()).startOf(
+    "day"
+  );
   const table = key
     ? await (
         await fetchScienceroomTable({
           y: date.year().toString(),
           m: (date.month() + 1).toString(),
-          d: date.daysInMonth().toString(),
+          d: date.date().toString(),
           key,
         })
       ).json()
